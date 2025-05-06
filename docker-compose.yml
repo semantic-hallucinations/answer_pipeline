@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"  # HTTP API
+      - "6334:6334"  # gRPC API
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    environment:
+      - QDRANT_ALLOW_CORS=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/collections"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - app_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: answer_pipeline_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MODEL_NAME=${MODEL_NAME}
+      - API_CLIENT_TOKEN=${API_CLIENT_TOKEN}
+      - QDRANT_ADDRESS=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION=default
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    name: answer_pipeline_network
+
+volumes:
+  qdrant_storage:
+    name: qdrant_storage 

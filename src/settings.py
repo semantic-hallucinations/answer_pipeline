@@ -8,7 +8,7 @@ class ModelSettings(BaseSettings):
     QDRANT_PORT: str
     QDRANT_COLLECTION: str
 
-    model_config = SettingsConfigDict(env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../.env"), extra="ignore")
+    model_config = SettingsConfigDict(env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "./.env"), extra="ignore")
 
     def get_model_name(self):
         return self.MODEL_NAME
