@@ -1,9 +1,9 @@
-import logging
-import pathlib
-import sys
+# import logging
+# import pathlib
+# import sys
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 from llama_index.core.chat_engine.types import BaseChatEngine
 from llama_index.core import Settings
