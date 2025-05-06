@@ -1,0 +1,6 @@
+services:
+  microservice-template:
+    build: .
+    ports:
+      # You can take any port you like instead of 8080 in your network
+      - "8080:8000"
