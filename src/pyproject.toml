@@ -1,0 +1,14 @@
+[project]
+name = "rag-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "llama-index>=0.12.31",
+    "llama-index-embeddings-huggingface>=0.5.3",
+    "llama-index-llms-openrouter>=0.3.1",
+    "llama-index-vector-stores-qdrant>=0.6.0",
+    "pydantic-settings>=2.9.1",
+]
