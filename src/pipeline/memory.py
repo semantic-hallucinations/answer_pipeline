@@ -11,7 +11,7 @@ class MemoryManager:
             llm=OpenRouter(
                 model=settings.get_model_name(), api_key=settings.get_model_key()
             ),
-            token_limit=4096,
+            token_limit=1024,
             tokenizer_fn=tiktoken.get_encoding("cl100k_base").encode,
         )
 

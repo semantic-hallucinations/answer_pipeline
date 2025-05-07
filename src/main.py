@@ -15,6 +15,10 @@ logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 Settings.llm = OpenRouter(
     model=settings.get_model_name(),
     api_key=settings.get_model_key(),
+    max_tokens=1024,
+    context_window=3900,
+    temperature=0.4,
+    timeout=60,
 )
 
 
