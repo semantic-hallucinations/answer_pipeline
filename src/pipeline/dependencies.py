@@ -85,8 +85,8 @@ def get_chat_engine(index: BaseIndex = Depends(get_index)):
         chat_mode=ChatMode.CONTEXT,
         text_qa_template=qa_prompt,
         temperature=0.4,
-        similarity_top_k=3,
+        similarity_top_k=5,
         memory=memory_manager.memory,
-        chunk_size_limit=512,
-        context_window=3900,
+        # chunk_size_limit=512,
+        # context_window=3900,
     )

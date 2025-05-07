@@ -10,21 +10,3 @@ services:
     environment:
       - QDRANT_ALLOW_CORS=true
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/collections"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
-
-  bsuir-helper-embedder:
-    image: ghcr.io/semantic-hallucinations/bsuir-helper-embedder:latest
-    ports:
-      - "8081:8000"
-    volumes:
-      - huggingface_cache:/root/.cache/huggingface/hub
-    env_file:
-      - .env
-
-volumes:
-  huggingface_cache:
