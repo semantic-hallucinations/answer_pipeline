@@ -1,7 +1,8 @@
 import logging
 import sys
+from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Body, Depends, FastAPI
 from llama_index.core import Settings
 from llama_index.core.chat_engine.types import BaseChatEngine
 from llama_index.llms.openrouter import OpenRouter
@@ -26,6 +27,9 @@ app = FastAPI()
 
 
 @app.post("/")
-def main(message: str, chat_engine: BaseChatEngine = Depends(get_chat_engine)):
-    streaming_response = chat_engine.chat(message)
+async def main(
+    message: Annotated[str, Body()],
+    chat_engine: BaseChatEngine = Depends(get_chat_engine),
+):
+    streaming_response = await chat_engine.achat(message)
     return streaming_response

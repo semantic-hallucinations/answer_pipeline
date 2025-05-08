@@ -8,7 +8,7 @@ from llama_index.core.indices.base import BaseIndex
 from llama_index.core.vector_stores.types import BasePydanticVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient, models
+from qdrant_client import AsyncQdrantClient, models
 
 from ..settings import settings
 from .memory import memory_manager
@@ -42,14 +42,14 @@ embed_model = HuggingFaceEmbedding(
 )
 
 
-def get_qdrant_client():
-    client = QdrantClient(url=settings.get_qdrant_url())
+async def get_qdrant_client():
+    client = AsyncQdrantClient(url=settings.get_qdrant_url())
     collection_name = settings.QDRANT_COLLECTION
     logger.info(f"Подключение к коллекции: {collection_name}")
 
-    if not client.collection_exists(collection_name):
+    if not await client.collection_exists(collection_name):
         logger.warning(f"Коллекция {collection_name} не существует")
-        client.create_collection(
+        await client.create_collection(
             collection_name=collection_name,
             vectors_config=models.VectorParams(
                 size=1024, distance=models.Distance.COSINE
@@ -57,7 +57,7 @@ def get_qdrant_client():
         )
         logger.info(f"Создана новая коллекция: {collection_name}")
     else:
-        collection_info = client.get_collection(collection_name)
+        collection_info = await client.get_collection(collection_name)
         logger.info(
             f"Коллекция {collection_name} содержит {collection_info.points_count} точек"
         )
@@ -65,20 +65,20 @@ def get_qdrant_client():
     return client
 
 
-def get_vector_store(client: QdrantClient = Depends(get_qdrant_client)):
+async def get_vector_store(client: AsyncQdrantClient = Depends(get_qdrant_client)):
     collection_name = settings.QDRANT_COLLECTION
     logger.info(f"Инициализация векторного хранилища для коллекции: {collection_name}")
     return QdrantVectorStore(
-        collection_name=collection_name, client=client, text_key="content"
+        collection_name=collection_name, aclient=client, text_key="content"
     )
 
 
-def get_index(vector_store: BasePydanticVectorStore = Depends(get_vector_store)):
+async def get_index(vector_store: BasePydanticVectorStore = Depends(get_vector_store)):
     logger.info("Создание индекса из векторного хранилища")
     return VectorStoreIndex.from_vector_store(vector_store, embed_model=embed_model)
 
 
-def get_chat_engine(index: BaseIndex = Depends(get_index)):
+async def get_chat_engine(index: BaseIndex = Depends(get_index)):
     logger.info("Инициализация чат-движка")
     logger.info(f"\n\nПАМЯТЬ{memory_manager.memory}\n\n")
     return index.as_chat_engine(
