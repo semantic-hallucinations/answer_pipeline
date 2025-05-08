@@ -32,4 +32,18 @@ async def main(
     chat_engine: BaseChatEngine = Depends(get_chat_engine),
 ):
     streaming_response = await chat_engine.achat(message)
-    return streaming_response
+    response = streaming_response.response
+
+    logging.info(f"Тип streaming_response: {type(streaming_response)}")
+    logging.info(f"Атрибуты streaming_response: {dir(streaming_response)}")
+    logging.info(f"Источники: {streaming_response.sources}")
+
+    sources = []
+    for source in streaming_response.sources:
+        if hasattr(source, "raw_output"):
+            for node in source.raw_output:
+                if hasattr(node, "node") and hasattr(node.node, "metadata"):
+                    if "source_url" in node.node.metadata:
+                        sources.append(node.node.metadata["source_url"])
+
+    return {"response": response, "source_urls": sources}
