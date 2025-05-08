@@ -10,3 +10,12 @@ services:
     environment:
       - QDRANT_ALLOW_CORS=true
     restart: unless-stopped
+  answer-pipeline:
+    build: .
+    ports:
+      - "8082:8000"
+    env_file:
+      - .env
+
+volumes:
+  huggingface_cache:
