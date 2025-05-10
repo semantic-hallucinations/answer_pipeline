@@ -1,16 +1,18 @@
+from typing import Optional
+
 from llama_index.llms.openrouter import OpenRouter
 from pydantic import BaseModel
-from typing import Optional
 
 from ..log_utils import logger
 from ..settings import settings
+
 
 class LLMSettings(BaseModel):
     primary_api_key: str
     backup_api_key: Optional[str] = None
     current_key: str
     model_name: str
-    
+
     def switch_key(self):
         if self.current_key == self.primary_api_key:
             if self.backup_api_key:
@@ -28,10 +30,11 @@ class LLMSettings(BaseModel):
 
 llm_settings = LLMSettings(
     primary_api_key=settings.get_model_key(),
-    backup_api_key=settings.get_backup_model_key(), 
+    backup_api_key=settings.get_backup_model_key(),
     current_key=settings.get_model_key(),
-    model_name=settings.get_model_name()
+    model_name=settings.get_model_name(),
 )
+
 
 def get_llm():
     logger.info(f"Creating LLM with model: {llm_settings.model_name}")
