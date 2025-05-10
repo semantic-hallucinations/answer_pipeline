@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class ModelSettings(BaseSettings):
     MODEL_NAME: str
     API_CLIENT_TOKEN: str
+    BACKUP_API_CLIENT_TOKEN: str
     QDRANT_ADDRESS: str
     QDRANT_PORT: str
     QDRANT_COLLECTION: str
@@ -20,6 +21,9 @@ class ModelSettings(BaseSettings):
 
     def get_model_key(self):
         return self.API_CLIENT_TOKEN
+
+    def get_backup_model_key(self):
+        return self.BACKUP_API_CLIENT_TOKEN
 
     def get_qdrant_url(self):
         return f"http://{self.QDRANT_ADDRESS}:{self.QDRANT_PORT}"

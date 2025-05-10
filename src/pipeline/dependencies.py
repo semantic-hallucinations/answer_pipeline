@@ -1,6 +1,3 @@
-import logging
-import sys
-
 from fastapi import Depends
 from llama_index.core import PromptTemplate, VectorStoreIndex
 from llama_index.core.chat_engine.types import ChatMode
@@ -10,11 +7,10 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from qdrant_client import AsyncQdrantClient, models
 
+from ..log_utils import logger
 from ..settings import settings
+from .llm import get_llm
 from .memory import memory_manager
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 qa_prompt = PromptTemplate(
     """
@@ -78,7 +74,7 @@ async def get_index(vector_store: BasePydanticVectorStore = Depends(get_vector_s
     return VectorStoreIndex.from_vector_store(vector_store, embed_model=embed_model)
 
 
-async def get_chat_engine(index: BaseIndex = Depends(get_index)):
+async def get_chat_engine(index: BaseIndex = Depends(get_index), llm=Depends(get_llm)):
     logger.info("Инициализация чат-движка")
     logger.info(f"\n\nПАМЯТЬ{memory_manager.memory}\n\n")
     return index.as_chat_engine(
@@ -87,6 +83,5 @@ async def get_chat_engine(index: BaseIndex = Depends(get_index)):
         temperature=0.4,
         similarity_top_k=5,
         memory=memory_manager.memory,
-        # chunk_size_limit=512,
-        # context_window=3900,
+        llm=llm,
     )
