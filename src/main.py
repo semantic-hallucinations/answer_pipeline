@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Dict, List
+from typing import Annotated, Any, List
 
 from fastapi import Body, Depends, FastAPI
 from llama_index.core.chat_engine.types import BaseChatEngine
@@ -20,17 +20,17 @@ def extract_sources(streaming_response: Any) -> List[str]:
     return sources
 
 
-async def ask_chat_engine(chat_engine: BaseChatEngine, message: str) -> Dict[str, Any]:
-    streaming_response = await chat_engine.achat(message)
-    response = streaming_response.response
-    sources = extract_sources(streaming_response)
-    logger.info(f"Тип streaming_response: {type(streaming_response)}")
-    logger.info(f"Источники: {streaming_response.sources}")
-    return {
-        "response": response,
-        "source_urls": sources,
-        "streaming_response": streaming_response,
-    }
+# async def ask_chat_engine(chat_engine: BaseChatEngine, message: str) -> Dict[str, Any]:
+#     streaming_response = await chat_engine.achat(message)
+#     response = streaming_response.response
+#     sources = extract_sources(streaming_response)
+#     logger.info(f"Тип streaming_response: {type(streaming_response)}")
+#     logger.info(f"Источники: {streaming_response.sources}")
+#     return {
+#         "response": response,
+#         "source_urls": sources,
+#         "streaming_response": streaming_response,
+#     }
 
 
 @app.post("/")
@@ -39,27 +39,36 @@ async def main(
     chat_engine: BaseChatEngine = Depends(get_chat_engine),
 ):
     try:
-        result = await ask_chat_engine(chat_engine, message)
+        streaming_response = await chat_engine.achat(message)
+        response = streaming_response.response
+        sources = extract_sources(streaming_response)
+        logger.info(f"Тип streaming_response: {type(streaming_response)}")
+        logger.info(f"Источники: {streaming_response.sources}")
 
-        if result["response"].strip().lower() == "empty response":
+        if streaming_response["response"].strip().lower() == "empty response":
             logger.warning(
                 "Получен 'Empty response' - переключаем API токен и повторяем запрос"
             )
             if llm_settings.switch_key():
                 chat_engine._llm = get_llm()
-                result = await ask_chat_engine(chat_engine, message)
-
-        return {"response": result["response"], "source_urls": result["source_urls"]}
+                streaming_response = await chat_engine.achat(message)
+                response = streaming_response.response
+                sources = extract_sources(streaming_response)
+                logger.info(f"Тип streaming_response: {type(streaming_response)}")
+                logger.info(f"Источники: {streaming_response.sources}")
+        return {"response": response, "source_urls": sources}
 
     except Exception as e:
         logger.error(f"Error during chat: {str(e)}")
         try:
             if llm_settings.switch_key():
                 chat_engine._llm = get_llm()
-                result = await ask_chat_engine(chat_engine, message)
+                streaming_response = await chat_engine.achat(message)
+                response = streaming_response.response
+                sources = extract_sources(streaming_response)
                 return {
-                    "response": result["response"],
-                    "source_urls": result["source_urls"],
+                    "response": response,
+                    "source_urls": sources,
                 }
         except Exception:
             pass
