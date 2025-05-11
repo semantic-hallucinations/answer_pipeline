@@ -43,6 +43,6 @@ def get_llm():
         api_key=llm_settings.current_key,
         max_tokens=10000,
         context_window=128000,
-        temperature=0.4,
+        temperature=0.3,
         timeout=60,
     )
