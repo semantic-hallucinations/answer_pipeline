@@ -12,11 +12,12 @@ app = FastAPI()
 def extract_sources(streaming_response: Any) -> List[str]:
     sources = []
     for source in streaming_response.sources:
-        for node in source.raw_output:
-            logger.info(f"Score: {node.score}")
-            if hasattr(node, "node") and hasattr(node.node, "metadata"):
-                if "source_url" in node.node.metadata:
-                    sources.append(node.node.metadata["source_url"])
+        if hasattr(source, "raw_output"):
+            for node in source.raw_output:
+                logger.info(f"Score: {node.score}")
+                if hasattr(node, "node") and hasattr(node.node, "metadata"):
+                    if "source_url" in node.node.metadata:
+                        sources.append(node.node.metadata["source_url"])
     return sources
 
 
