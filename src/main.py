@@ -12,25 +12,12 @@ app = FastAPI()
 def extract_sources(streaming_response: Any) -> List[str]:
     sources = []
     for source in streaming_response.sources:
-        if hasattr(source, "raw_output"):
-            for node in source.raw_output:
-                if hasattr(node, "node") and hasattr(node.node, "metadata"):
-                    if "source_url" in node.node.metadata:
-                        sources.append(node.node.metadata["source_url"])
+        for node in source.raw_output:
+            logger.info(f"Score: {node.score}")
+            if hasattr(node, "node") and hasattr(node.node, "metadata"):
+                if "source_url" in node.node.metadata:
+                    sources.append(node.node.metadata["source_url"])
     return sources
-
-
-# async def ask_chat_engine(chat_engine: BaseChatEngine, message: str) -> Dict[str, Any]:
-#     streaming_response = await chat_engine.achat(message)
-#     response = streaming_response.response
-#     sources = extract_sources(streaming_response)
-#     logger.info(f"Тип streaming_response: {type(streaming_response)}")
-#     logger.info(f"Источники: {streaming_response.sources}")
-#     return {
-#         "response": response,
-#         "source_urls": sources,
-#         "streaming_response": streaming_response,
-#     }
 
 
 @app.post("/")
@@ -45,7 +32,7 @@ async def main(
         logger.info(f"Тип streaming_response: {type(streaming_response)}")
         logger.info(f"Источники: {streaming_response.sources}")
 
-        if streaming_response["response"].strip().lower() == "empty response":
+        if streaming_response.response.strip().lower() == "empty response":
             logger.warning(
                 "Получен 'Empty response' - переключаем API токен и повторяем запрос"
             )
