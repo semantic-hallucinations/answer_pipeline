@@ -29,6 +29,7 @@ async def main(
     try:
         streaming_response = await chat_engine.achat(message)
         response = streaming_response.response
+        logger.info(f"Response {response}")
         sources = extract_sources(streaming_response)
         logger.info(f"Тип streaming_response: {type(streaming_response)}")
         logger.info(f"Источники: {streaming_response.sources}")
