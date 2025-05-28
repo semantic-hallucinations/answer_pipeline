@@ -21,8 +21,9 @@ class MemoryManager:
         )
         self.memory = ChatSummaryMemoryBuffer.from_defaults(
             llm=llm,
-            token_limit=1024,
+            token_limit=5000,
             tokenizer_fn=tiktoken.get_encoding("cl100k_base").encode,
+            summarize_prompt="Ниже приведен разговор между пользователем и помощником. Напишите краткое резюме содержания этого разговора. На русском."
         )
 
 
